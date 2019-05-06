@@ -187,7 +187,12 @@ func main() {
 		ctx := ble.WithSigHandler(context.WithTimeout(
 			context.Background(), time.Minute))
 
-		d.Scan(ctx, true, advHandler)
+		err = d.Scan(ctx, true, advHandler)
+
+		if err != nil && err != context.DeadlineExceeded {
+			print("Error with scan: " + err.Error() + "\n")
+			os.Exit(1)
+		}
 
 		for addr, reading := range readings {
 			fmt.Println(reading)
