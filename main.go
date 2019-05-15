@@ -43,8 +43,8 @@ func advHandler(a ble.Advertisement) {
 	// 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17
 	// 50 20 AA 01 B8 92 85 DC A8 65 4C 0D 10 04 CC 00 0C 02
 	if _, found := sensors[a.Addr().String()]; found &&
-			len(a.ServiceData()) > 0 &&
-			len(a.ServiceData()[0].Data) > 14 {
+		len(a.ServiceData()) > 0 &&
+		len(a.ServiceData()[0].Data) > 14 {
 		data := a.ServiceData()[0].Data
 		id := binary.LittleEndian.Uint16(data[11:])
 
@@ -149,14 +149,14 @@ func main() {
 		fmt.Printf("Can't find MQTT configuration section.\n")
 		os.Exit(1)
 	}
-	if ! sec.HasKey("broker") {
+	if !sec.HasKey("broker") {
 		fmt.Printf("Must define MQTT broker host.\n")
 		os.Exit(1)
 	}
 
 	// Connect to the MQTT server
 	opts := mqtt.NewClientOptions().AddBroker("ssl://" +
-		sec.Key("broker").String() +":8883")
+		sec.Key("broker").String() + ":8883")
 	opts.SetClientID("gomijia")
 	opts.SetKeepAlive(30 * time.Second)
 	opts.SetPingTimeout(10 * time.Second)
