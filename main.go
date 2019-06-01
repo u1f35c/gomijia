@@ -21,6 +21,7 @@ package main
 
 import (
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"os"
 	"time"
@@ -38,6 +39,7 @@ import (
 
 var sensors = map[string]string{}
 var readings = map[string]map[string]int{}
+var verbose = flag.Bool("verbose", false, "Enable verbose output")
 
 func advHandler(a ble.Advertisement) {
 	// 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17
@@ -71,6 +73,10 @@ func advHandler(a ble.Advertisement) {
 		//fmt.Printf("%s T=%d.%d H=%d.%d B=%d", comma,
 		//	temp/10, temp%10,
 		//	humidity/10, humidity%10, battery)
+		return
+	}
+
+	if (!*verbose) {
 		return
 	}
 
@@ -119,7 +125,10 @@ func sensorPublish(c mqtt.Client, location string, reading map[string]int) {
 }
 
 func main() {
-	cfg, err := ini.Load("gomijia.ini")
+	configfile := flag.String("config", "/etc/gomijia.ini", "Config file location")
+	flag.Parse()
+
+	cfg, err := ini.Load(*configfile)
 	if err != nil {
 		fmt.Printf("Failed to load configuration file: %v\n", err)
 		os.Exit(1)
@@ -195,7 +204,9 @@ func main() {
 		}
 
 		for addr, reading := range readings {
-			fmt.Println(reading)
+			if (*verbose) {
+				fmt.Println(reading)
+			}
 
 			if location, ok := sensors[addr]; ok {
 				sensorPublish(c, location, reading)
